@@ -2,7 +2,9 @@ package controller
 
 import (
 	"alldu.cn/ginproject/common"
+	"alldu.cn/ginproject/dto"
 	"alldu.cn/ginproject/model"
+	"alldu.cn/ginproject/response"
 	"alldu.cn/ginproject/util"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -21,12 +23,12 @@ func Register(c *gin.Context) {
 
 	//数据验证
 	if len(telephone) != 11 {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "msg": "Incorrect format of mobile phone number"})
+		response.Response(c, http.StatusUnprocessableEntity, 422, nil, "The password cannot be less than 6 characters.")
 		return
 	}
 
 	if len(password) < 6 {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "msg": "The password cannot be less than 6 characters."})
+		response.Response(c, http.StatusUnprocessableEntity, 422, nil, "Incorrect format of mobile phone number")
 		return
 	}
 
@@ -37,13 +39,13 @@ func Register(c *gin.Context) {
 
 	//判断手机号是否存在
 	if isTelephoneExist(DB, telephone) {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "msg": "User already exists"})
+		response.Response(c, http.StatusUnprocessableEntity, 422, nil, "User already exists")
 		return
 	}
 	//创建用户
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "Encryption error"})
+		response.Response(c, http.StatusInternalServerError, 500, nil, "Encryption error")
 	}
 	newUser := model.User{
 		Name:      name,
@@ -53,10 +55,11 @@ func Register(c *gin.Context) {
 	DB.Create(&newUser)
 
 	//返回结果
-	c.JSON(200, gin.H{
-		"code":    200,
-		"message": "注册成功",
-	})
+	//c.JSON(200, gin.H{
+	//	"code":    200,
+	//	"message": "注册成功",
+	//})
+	response.Success(c, nil, "注册成功")
 }
 
 func Login(c *gin.Context) {
@@ -67,6 +70,7 @@ func Login(c *gin.Context) {
 
 	//数据验证
 	if len(telephone) != 11 {
+
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "msg": "Incorrect format of mobile phone number"})
 		return
 	}
@@ -99,18 +103,12 @@ func Login(c *gin.Context) {
 	}
 
 	//返回结果
-	c.JSON(200, gin.H{
-		"code":    200,
-		"data":    gin.H{"token": token},
-		"message": "登录成功",
-	})
-
+	response.Success(c, gin.H{"token": token}, "登录成功")
 }
 
 func Info(c *gin.Context) {
 	user, _ := c.Get("user")
-	c.JSON(http.StatusOK, gin.H{"code": 200, "data": gin.H{"user": user}})
-
+	c.JSON(http.StatusOK, gin.H{"code": 200, "data": gin.H{"user": dto.ToUserDto(user.(model.User))}})
 }
 
 func isTelephoneExist(db *gorm.DB, telephone string) bool {
