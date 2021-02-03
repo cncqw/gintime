@@ -22,7 +22,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		tokenString = tokenString[7:]
 		token, claims, err := common.ParseToken(tokenString)
-		if err != nil || token.Valid {
+		if err != nil || !token.Valid {
 			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "权限不足"})
 			c.Abort()
 			return
@@ -34,7 +34,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		var user model.User
 		DB.First(&user, userId)
 
-		//用户
+		//用户不存在 返回权限不足
 		if user.ID == 0 {
 			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "权限不足"})
 			c.Abort()
@@ -42,7 +42,8 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		//用户存在 将user的信息写入上下文
-
+		c.Set("user", user)
+		c.Next()
 
 	}
 }
