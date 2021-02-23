@@ -1,5 +1,4 @@
 // 本地缓存服务
-
 const PREFIX = 'gintime_';
 
 // USER模块

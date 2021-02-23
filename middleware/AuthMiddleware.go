@@ -15,7 +15,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		//validate token formate
 		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
-			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "权限不足"})
+			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "Token为空"})
 			c.Abort()
 			return
 		}
@@ -23,7 +23,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		tokenString = tokenString[7:]
 		token, claims, err := common.ParseToken(tokenString)
 		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "权限不足"})
+			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "Token无效"})
 			c.Abort()
 			return
 		}

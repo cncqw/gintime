@@ -42,7 +42,9 @@
 
 import { required, minLength } from 'vuelidate/lib/validators';
 import customValidator from '@/helper/validator';
-import userService from '@/service/userService';
+import { createNamespacedHelpers } from 'vuex';
+
+const mapMutations = createNamespacedHelpers('userModule');
 
 export default {
   data() {
@@ -69,6 +71,7 @@ export default {
     },
   },
   methods: {
+    ...mapMutations('userModule', ['SET_TOKEN', 'SET_USERINFO']),
     validateState(name) {
       // 这里是es6 解构赋值
       const { $dirty, $error } = this.$v.user[name];
@@ -81,17 +84,10 @@ export default {
         return;
       }
       // 请求
-      // const api = 'http://localhost:1060/api/auth/register';
-      userService.register(this.user).then((res) => {
-        this.$store.commit('userModule/SET_TOKEN', res.data.data.token);
-        return userService.info();
-      }).then((response) => {
-        // 保存用户信息
-        this.$store.commit('userModule/SET_USERINFO', response.data.data.user);
+      this.$store.dispatch('userModule/register', this.user).then(() => {
         // 跳转主页
         this.$router.replace({ name: 'Home' });
       }).catch((err) => {
-        console.log('err:', err.response.data.msg);
         this.$bvToast.toast(err.response.data.msg, {
           title: '提示',
           variant: 'danger',

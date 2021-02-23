@@ -7,7 +7,7 @@ const service = axios.create({
   // headers: { 'X-Custom-Header': 'foobar' },
 });
 
-axios.interceptors.request.use((config) => {
+service.interceptors.request.use((config) => {
   Object.assign(config.headers, { Authorization: `Bearer ${storageService.get(storageService.USER_TOKEN)}` });
   return config;
 }, (error) => {
