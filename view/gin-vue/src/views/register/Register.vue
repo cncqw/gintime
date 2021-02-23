@@ -42,6 +42,7 @@
 
 import { required, minLength } from 'vuelidate/lib/validators';
 import customValidator from '@/helper/validator';
+import userService from '@/service/userService';
 
 export default {
   data() {
@@ -80,11 +81,13 @@ export default {
         return;
       }
       // 请求
-      const api = 'http://localhost:1060/api/auth/register';
-      this.axios.post(api, { ...this.user }).then((res) => {
-        // 保存token
-        // console.log(res.data);
-        localStorage.setItem('token', res.data.data.token);
+      // const api = 'http://localhost:1060/api/auth/register';
+      userService.register(this.user).then((res) => {
+        this.$store.commit('userModule/SET_TOKEN', res.data.data.token);
+        return userService.info();
+      }).then((response) => {
+        // 保存用户信息
+        this.$store.commit('userModule/SET_USERINFO', response.data.data.user);
         // 跳转主页
         this.$router.replace({ name: 'Home' });
       }).catch((err) => {
