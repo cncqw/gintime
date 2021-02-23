@@ -1,95 +1,80 @@
 <template>
-  <div class="login">
-    <b-form @submit="onSubmit" @reset="onReset" v-if="show">
-      <b-form-group
-        id="input-group-1"
-        label="用户名"
-        label-for="input-1"
-        description="We'll never share your email with anyone else."
-      >
-        <b-form-input
-          id="input-1"
-          v-model="form.email"
-          type="email"
-          placeholder="Enter email"
-          required
-        ></b-form-input>
-      </b-form-group>
+  <div class="register">
+    <b-row class="mt-5">
+      <b-col md="8" offset-md="2" lg="6" offset-lg="3">
+        <b-card title="登录">
+          <b-form>
+            <b-form-group label="手机号">
+              <b-form-input v-model="$v.user.telephone.$model"
+              type="number"
+              placeholder="输入手机号"
+              required :state="validateState('telephone')">
+              </b-form-input>
+              <b-form-invalid-feedback :state="validateState('telephone')">
+                  手机号格式不正确
+              </b-form-invalid-feedback>
+            </b-form-group>
+            <b-form-group label="密码">
+              <b-form-input v-model="$v.user.password.$model"
+              type="password"
+              placeholder="请输入密码"
+             :state="validateState('password')">
+              </b-form-input>
+               <b-form-invalid-feedback :state="validateState('password')">
+                 密码必须不少于6位
+              </b-form-invalid-feedback>
+            </b-form-group>
 
-      <b-form-group id="input-group-2" label="密码" label-for="input-2">
-        <b-form-input
-          id="input-2"
-          v-model="form.name"
-          placeholder="请输入密码"
-          required
-        ></b-form-input>
-      </b-form-group>
-
-      <b-form-group id="input-group-3" label="Food:" label-for="input-3">
-        <b-form-select
-          id="input-3"
-          v-model="form.food"
-          :options="foods"
-          required
-        ></b-form-select>
-      </b-form-group>
-
-      <b-form-group id="input-group-4" v-slot="{ ariaDescribedby }">
-        <b-form-checkbox-group
-          v-model="form.checked"
-          id="checkboxes-4"
-          :aria-describedby="ariaDescribedby"
-        >
-          <b-form-checkbox value="me">Check me out</b-form-checkbox>
-          <b-form-checkbox value="that">Check that out</b-form-checkbox>
-        </b-form-checkbox-group>
-      </b-form-group>
-
-      <b-button type="submit" variant="primary">Submit</b-button>
-      <b-button type="reset" variant="danger">Reset</b-button>
-    </b-form>
-    <b-card class="mt-3" header="Form Data Result">
-      <pre class="m-0">{{ form }}</pre>
-    </b-card>
+            <b-button block variant="primary" @click="register">登录</b-button>
+            <b-button @click="$router.replace({name:'register'})" block variant="outline-secondary">注册</b-button>
+          </b-form>
+        </b-card>
+      </b-col>
+    </b-row>
   </div>
 </template>
+
 <script>
+
+import { required, minLength } from 'vuelidate/lib/validators';
+import customValidator from '@/helper/validator';
+
 export default {
   data() {
     return {
-      form: {
-        email: '',
+      user: {
         name: '',
-        food: null,
-        checked: [],
+        telephone: '',
+        password: '',
       },
-      foods: [
-        { text: 'Select One', value: null },
-        'Carrots',
-        'Beans',
-        'Tomatoes',
-        'Corn',
-      ],
-      show: true,
+      validation: null,
     };
   },
-  methods: {
-    onSubmit(event) {
-      event.preventDefault();
-      alert(JSON.stringify(this.form));
+  validations: {
+    user: {
+      telephone: {
+        required,
+        telephone: customValidator.telephoneValidator,
+      },
+      password: {
+        required,
+        minLength: minLength(6),
+      },
     },
-    onReset(event) {
-      event.preventDefault();
-      // Reset our form values
-      this.form.email = '';
-      this.form.name = '';
-      this.form.food = null;
-      this.form.checked = [];
-      // Trick to reset/clear native browser form validation state
-      this.show = false;
-      this.$nextTick(() => {
-        this.show = true;
-      });
+  },
+  methods: {
+    validateState(name) {
+      // 这里是es6 解构赋值
+      const { $dirty, $error } = this.$v.user[name];
+      return $dirty ? !$error : null;
+    },
+    register() {
+      if (this.user.telephone.length !== 11) {
+        this.validate = false;
+        return;
+      }
+      this.validate = true;
+      console.log('r');
     },
   },
 };

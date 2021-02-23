@@ -8,10 +8,10 @@
               <b-form-input v-model="$v.user.telephone.$model"
               type="number"
               placeholder="输入手机号"
-              required>
+              required :state="validateState('telephone')">
               </b-form-input>
-              <b-form-invalid-feedback :state="validation">
-                  手机号必须为11位
+              <b-form-invalid-feedback :state="validateState('telephone')">
+                  手机号格式不正确
               </b-form-invalid-feedback>
             </b-form-group>
                <b-form-group label="昵称">
@@ -22,8 +22,11 @@
               <b-form-input v-model="$v.user.password.$model"
               type="password"
               placeholder="请输入密码"
-              required>
+             :state="validateState('password')">
               </b-form-input>
+               <b-form-invalid-feedback :state="validateState('password')">
+                 密码必须不少于6位
+              </b-form-invalid-feedback>
             </b-form-group>
 
             <b-button block variant="primary" @click="register">确认</b-button>
@@ -37,7 +40,8 @@
 
 <script>
 
-import { required, minLength, maxLength } from 'vuelidate/lib/validators';
+import { required, minLength } from 'vuelidate/lib/validators';
+import customValidator from '@/helper/validator';
 
 export default {
   data() {
@@ -54,8 +58,7 @@ export default {
     user: {
       telephone: {
         required,
-        minLength: minLength(11),
-        maxLength: maxLength(11),
+        telephone: customValidator.telephoneValidator,
       },
       name: {},
       password: {
@@ -71,11 +74,20 @@ export default {
       return $dirty ? !$error : null;
     },
     register() {
-      if (this.user.telephone.length !== 11) {
-        this.validate = false;
+      // 验证数据
+      this.$v.user.$touch();
+      if (this.$v.user.$anyError) {
         return;
       }
-      this.validate = true;
+      // 请求
+      const api = 'http://localhost:1060/api/auth/register';
+      this.axios.post(api, { ...this.user }).then((res) => {
+        // 保存token
+        console.log(res.data);
+        // 跳转主页
+      }).catch((err) => {
+        console.log('err:', err.response.data.msg);
+      });
       console.log('r');
     },
   },
