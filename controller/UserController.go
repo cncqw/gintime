@@ -16,10 +16,22 @@ import (
 func Register(c *gin.Context) {
 	DB := common.GetDB()
 
+	// 使用map获取请求的参数
+	//var requestMap = make(map[string]string)
+	//json.NewDecoder(c.Request.Body).Decode(&requestMap)
+
+	var requestUser = model.User{}
+	//json.NewDecoder(c.Request.Body).Decode(&requestUser)
+	c.Bind(&requestUser)
+
 	//获取参数
-	name := c.PostForm("name")
-	telephone := c.PostForm("telephone")
-	password := c.PostForm("password")
+	//name := c.PostForm("name")
+	//telephone := c.PostForm("telephone")
+	//password := c.PostForm("password")
+
+	name := requestUser.Name
+	telephone := requestUser.Telephone
+	password := requestUser.Password
 
 	//数据验证
 	if len(telephone) != 11 {
