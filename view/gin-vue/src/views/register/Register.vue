@@ -83,12 +83,19 @@ export default {
       const api = 'http://localhost:1060/api/auth/register';
       this.axios.post(api, { ...this.user }).then((res) => {
         // 保存token
-        console.log(res.data);
+        // console.log(res.data);
+        localStorage.setItem('token', res.data.data.token);
         // 跳转主页
+        this.$router.replace({ name: 'Home' });
       }).catch((err) => {
         console.log('err:', err.response.data.msg);
+        this.$bvToast.toast(err.response.data.msg, {
+          title: '提示',
+          variant: 'danger',
+          solid: true,
+          toaster: 'b-toaster-top-right',
+        });
       });
-      console.log('r');
     },
   },
 };
