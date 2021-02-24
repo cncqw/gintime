@@ -5,7 +5,7 @@ const userModule = {
   namespaced: true,
   state: {
     token: storageService.get(storageService.USER_TOKEN),
-    userInfo: JSON.parse(storageService.get(storageService.USER_INFO)),
+    userInfo: storageService.get(storageService.USER_INFO) ? JSON.parse(storageService.get(storageService.USER_INFO)) : null, // eslint-disable-line
   },
 
   mutations: {
@@ -55,6 +55,16 @@ const userModule = {
           reject(err);
         });
       });
+    },
+
+    logout(context) {
+      // 清除token
+      context.commit('SET_TOKEN', '');
+      storageService.set(storageService.USER_TOKEN, '');
+
+      // 清除用户信息
+      context.commit('SET_USERINFO', '');
+      storageService.set(storageService.USER_INFO, '');
     },
   },
 };
