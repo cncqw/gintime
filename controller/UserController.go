@@ -88,12 +88,19 @@ func Register(c *gin.Context) {
 func Login(c *gin.Context) {
 	DB := common.GetDB()
 	//获取参数
-	telephone := c.PostForm("telephone")
-	password := c.PostForm("password")
+	// telephone := c.PostForm("telephone")
+	// password := c.PostForm("password")
+
+	var requestUser = model.User{}
+	c.Bind(&requestUser)
+
+	//获取参数
+	telephone := requestUser.Telephone
+	password := requestUser.Password
+
 
 	//数据验证
 	if len(telephone) != 11 {
-
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "msg": "手机号格式不正确"})
 		return
 	}

@@ -1,5 +1,5 @@
 <template>
-  <div class="register">
+  <div class="login">
     <b-row class="mt-5">
       <b-col md="8" offset-md="2" lg="6" offset-lg="3">
         <b-card title="登录">
@@ -25,7 +25,7 @@
               </b-form-invalid-feedback>
             </b-form-group>
 
-            <b-button block variant="primary" @click="register">登录</b-button>
+            <b-button block variant="primary" @click="login">立即登录</b-button>
             <b-button @click="$router.replace({name:'register'})" block variant="outline-secondary">注册</b-button>
           </b-form>
         </b-card>
@@ -35,15 +35,14 @@
 </template>
 
 <script>
-
 import { required, minLength } from 'vuelidate/lib/validators';
 import customValidator from '@/helper/validator';
+import { mapActions } from 'vuex';
 
 export default {
   data() {
     return {
       user: {
-        name: '',
         telephone: '',
         password: '',
       },
@@ -63,18 +62,31 @@ export default {
     },
   },
   methods: {
+    ...mapActions('userModule', { userLogin: 'login' }),
+
     validateState(name) {
       // 这里是es6 解构赋值
       const { $dirty, $error } = this.$v.user[name];
       return $dirty ? !$error : null;
     },
-    register() {
-      if (this.user.telephone.length !== 11) {
-        this.validate = false;
+    login() {
+      // 验证数据
+      this.$v.user.$touch();
+      if (this.$v.user.$anyError) {
         return;
       }
-      this.validate = true;
-      console.log('r');
+      // 请求
+      this.userLogin(this.user).then(() => {
+        // 跳转主页
+        this.$router.replace({ name: 'Home' });
+      }).catch((err) => {
+        this.$bvToast.toast(err.response.data.msg, {
+          title: '提示',
+          variant: 'danger',
+          solid: true,
+          toaster: 'b-toaster-top-right',
+        });
+      });
     },
   },
 };
