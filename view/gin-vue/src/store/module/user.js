@@ -65,6 +65,8 @@ const userModule = {
       // 清除用户信息
       context.commit('SET_USERINFO', '');
       storageService.set(storageService.USER_INFO, '');
+
+      window.location.reload();
     },
   },
 };
