@@ -1,6 +1,6 @@
-# Gin Demo
+# Gin Time
 
-基于GO语言的Gin框架演示项目
+基于GO和Vue.js的Gin框架项目
 
 ## 安装Gin
 ```
