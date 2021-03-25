@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"net/url"
 )
 
 var DB *gorm.DB
@@ -16,12 +17,16 @@ func InitDB() *gorm.DB {
 	database := viper.GetString("datasource.database")
 	username := viper.GetString("datasource.username")
 	password := viper.GetString("datasource.password")
-	args := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+	charset := viper.GetString("datasource.charset")
+	loc := viper.GetString("datasource.loc")
+	args := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=%s",
 		username,
 		password,
 		host,
 		port,
-		database)
+		database,
+		charset,
+		url.QueryEscape(loc))
 
 	// refer https://github.com/go-sql-driver/mysql#dsn-data-source-name for details
 	//dsn := "user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
