@@ -1,6 +1,7 @@
 package common
 
 import (
+	"alldu.cn/ginproject/model"
 	"fmt"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
@@ -37,7 +38,7 @@ func InitDB() *gorm.DB {
 		panic("failed to connect database,err:" + err.Error())
 	}
 
-	//db.AutoMigrate(&model.User{})
+	db.AutoMigrate(&model.User{})
 	DB = db
 	return db
 

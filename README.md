@@ -21,7 +21,7 @@ go get github.com/spf13/viper
 
 1. 下载 nvm_setup.zip
 
-https://github.com/coreybutler/nvm/release
+https://github.com/coreybutler/nvm
 
 2. 创建环境变量
 ```
