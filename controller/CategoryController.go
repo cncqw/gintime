@@ -1,9 +1,10 @@
 package controller
 
 import (
-	"alldu.cn/ginproject/common"
 	"alldu.cn/ginproject/model"
+	"alldu.cn/ginproject/repository"
 	"alldu.cn/ginproject/response"
+	"alldu.cn/ginproject/vo"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -15,36 +16,38 @@ type ICategoryController interface {
 }
 
 type CategoryController struct {
-	DB *gorm.DB
+	// DB *gorm.DB
+	Repository repository.CategoryRepository
 }
 
 func NewCategoryController() ICategoryController {
-	db := common.GetDB()
-	db.AutoMigrate(model.Category{})
+	repository := repository.NewCategoryRepository()
 
-	return CategoryController{DB: db}
+	// db := common.GetDB()
+	repository.DB.AutoMigrate(model.Category{})
+
+	return CategoryController{Repository: repository}
 }
 
 func (c CategoryController) Create(ctx *gin.Context) {
-	var requestCategory model.Category
-	ctx.Bind(&requestCategory)
-
-	if requestCategory.Name == "" {
+	var requestCategory vo.CreateCategoryRequest
+	if err := ctx.ShouldBind(&requestCategory); err != nil {
 		response.Fail(ctx, nil, "分类名称必填")
 		return
 	}
 
-	c.DB.Create(&requestCategory)
+	category, err := c.Repository.Create(requestCategory.Name)
+	if err != nil {
+		response.Fail(ctx, nil, "创建失败")
+		return
+	}
 
-	response.Success(ctx, gin.H{"category": requestCategory}, "创建成功")
+	response.Success(ctx, gin.H{"category": category}, "创建成功")
 }
 
 func (c CategoryController) Update(ctx *gin.Context) {
-	//绑定Body中的参数
-	var requestCategory model.Category
-	ctx.Bind(&requestCategory)
-
-	if requestCategory.Name == "" {
+	var requestCategory vo.CreateCategoryRequest
+	if err := ctx.ShouldBind(&requestCategory); err != nil {
 		response.Fail(ctx, nil, "分类名称必填")
 		return
 	}
@@ -52,21 +55,30 @@ func (c CategoryController) Update(ctx *gin.Context) {
 	// 获取path中的参数
 	categoryId, _ := strconv.Atoi(ctx.Params.ByName("id"))
 
-	var updateCategory model.Category
+	//var updateCategory model.Category
+	//err := c.DB.First(&updateCategory, categoryId).Error
+	//if errors.Is(err, gorm.ErrRecordNotFound) {
+	//	response.Fail(ctx, nil, "分类不存在")
+	//}
 
-	err := c.DB.First(&updateCategory, categoryId).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	updateCategory, err := c.Repository.SelectById(categoryId)
+	if err != nil {
 		response.Fail(ctx, nil, "分类不存在")
+		return
 	}
 
 	//更新分类
 	//map
 	//struct
 	//name value
-	c.DB.Model(&updateCategory).Update("name", requestCategory.Name)
-
-	response.Success(ctx, gin.H{"category": updateCategory}, "修改成功")
+	category ,err := c.Repository.Update(*updateCategory, requestCategory.Name)
+	//c.DB.Model(&updateCategory).Update("name", requestCategory.Name)
+	if err != nil{
+		panic(err)
+	}
+	response.Success(ctx, gin.H{"category": category}, "修改成功")
 }
+
 
 func (c CategoryController) Show(ctx *gin.Context) {
 	// 获取path中的参数
