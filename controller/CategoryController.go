@@ -5,9 +5,7 @@ import (
 	"alldu.cn/ginproject/repository"
 	"alldu.cn/ginproject/response"
 	"alldu.cn/ginproject/vo"
-	"errors"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"strconv"
 )
 
@@ -84,12 +82,18 @@ func (c CategoryController) Show(ctx *gin.Context) {
 	// 获取path中的参数
 	categoryId, _ := strconv.Atoi(ctx.Params.ByName("id"))
 
-	var category model.Category
-	err := c.DB.First(&category, categoryId).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	category,err :=c.Repository.SelectById(categoryId)
+	//var category model.Category
+	//err := c.DB.First(&category, categoryId).Error
+	if err != nil {
 		response.Fail(ctx, nil, "分类不存在")
 		return
 	}
+
+	//if errors.Is(err, gorm.ErrRecordNotFound) {
+	//	response.Fail(ctx, nil, "分类不存在")
+	//	return
+	//}
 
 	response.Success(ctx, gin.H{"category": category}, "")
 }
@@ -97,7 +101,7 @@ func (c CategoryController) Show(ctx *gin.Context) {
 func (c CategoryController) Delete(ctx *gin.Context) {
 	// 获取path中的参数
 	categoryId, _ := strconv.Atoi(ctx.Params.ByName("id"))
-	err := c.DB.Delete(model.Category{}, categoryId).Error
+	err := c.Repository.DeleteById(categoryId)
 	if err != nil {
 		response.Fail(ctx, nil, "删除失败")
 		return
