@@ -20,5 +20,14 @@ func CollectRoute(r *gin.Engine) *gin.Engine {
 	categoryRoutes.DELETE("/:id",categoryController.Delete)
 	//categoryRoutes.PATCH("/:id",categoryController.Delete)
 
+
+	/* post */
+	postRoutes := r.Group("/posts")
+	postController := controller.NewPostController()
+	postRoutes.POST("",postController.Create)
+	postRoutes.PUT("/:id",postController.Update)
+	postRoutes.GET("/:id",postController.Show)
+	postRoutes.DELETE("/:id",postController.Delete)
+
 	return r
 }
