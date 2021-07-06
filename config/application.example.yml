@@ -1,0 +1,12 @@
+server:
+  port: 1060
+
+datasource:
+  driverName: mysql
+  host: localhost
+  port: 3306
+  database: go_demo
+  username: root
+  password: root
+  charset: utf8mb4
+  loc: Asia/Shanghai
