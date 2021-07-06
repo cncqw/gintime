@@ -51,8 +51,3 @@ yarn config set registry https://registry.npm.taobao.org
 yarn global add @vue/cli
 ```
 
-Windows下添加到Path环境变量
-```
-C:\Users\UserName\AppData\Local\Yarn\Data\global\node_modules\.bin
-```
-
